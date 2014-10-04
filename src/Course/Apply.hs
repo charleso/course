@@ -29,8 +29,7 @@ instance Apply Id where
     Id (a -> b)
     -> Id a
     -> Id b
-  (<*>) =
-    error "todo"
+  (<*>) (Id f) = (<$>) f
 
 -- | Implement @Apply@ instance for @List@.
 --
@@ -41,8 +40,7 @@ instance Apply List where
     List (a -> b)
     -> List a
     -> List b
-  (<*>) =
-    error "todo"
+  (<*>) fs a = flatMap (flip map a) fs
 
 -- | Implement @Apply@ instance for @Optional@.
 --
@@ -59,8 +57,8 @@ instance Apply Optional where
     Optional (a -> b)
     -> Optional a
     -> Optional b
-  (<*>) =
-    error "todo"
+  (<*>) (Full f) = mapOptional f
+  (<*>) Empty = const Empty
 
 -- | Implement @Apply@ instance for reader.
 --
@@ -83,8 +81,7 @@ instance Apply ((->) t) where
     ((->) t (a -> b))
     -> ((->) t a)
     -> ((->) t b)
-  (<*>) =
-    error "todo"
+  (<*>) f a = \t -> (f t) (a t)
 
 -- | Apply a binary function in the environment.
 --
@@ -111,8 +108,7 @@ lift2 ::
   -> f a
   -> f b
   -> f c
-lift2 =
-  error "todo"
+lift2 abc a b = abc <$> a <*> b
 
 -- | Apply a ternary function in the environment.
 --
@@ -143,8 +139,8 @@ lift3 ::
   -> f b
   -> f c
   -> f d
-lift3 =
-  error "todo"
+-- lift3 abcd a b c = abcd <$> a <*> b <*> c
+lift3 abcd a b c = lift2 abcd a b <*> c
 
 -- | Apply a quaternary function in the environment.
 --
@@ -176,8 +172,8 @@ lift4 ::
   -> f c
   -> f d
   -> f e
-lift4 =
-  error "todo"
+-- lift4 abcde a b c d = abcde <$> a <*> b <*> c <*> d
+lift4 abcde a b c d = lift3 abcde a b c <*> d
 
 -- | Sequence, discarding the value of the first argument.
 -- Pronounced, right apply.
@@ -202,8 +198,7 @@ lift4 =
   f a
   -> f b
   -> f b
-(*>) =
-  error "todo"
+(*>) = lift2 seq
 
 -- | Sequence, discarding the value of the second argument.
 -- Pronounced, left apply.
@@ -228,8 +223,7 @@ lift4 =
   f b
   -> f a
   -> f b
-(<*) =
-  error "todo"
+(<*) = lift2 const
 
 -----------------------
 -- SUPPORT LIBRARIES --

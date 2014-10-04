@@ -8,6 +8,7 @@ module Course.FileIO where
 import Course.Core
 import Course.Applicative
 import Course.Apply
+import Course.Monad
 import Course.Bind
 import Course.Functor
 import Course.List
@@ -62,8 +63,18 @@ the contents of c
 -- /Tip:/ use @getArgs@ and @run@
 main ::
   IO ()
-main =
-  error "todo"
+main = do
+  args <- getArgs
+  forM_ args $ \file -> do
+    lns  <- readFile file
+    let moreFiles = lines lns
+    forM_ moreFiles $ \newFile -> do
+      putStrLn newFile
+      contents <- readFile newFile
+      putStrLn contents
+
+forM_ :: Monad m => List a -> (a -> m b) -> m ()
+forM_ l = void . sequence . flip map l
 
 type FilePath =
   Chars
