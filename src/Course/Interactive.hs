@@ -84,7 +84,9 @@ data Op =
 convertInteractive ::
   IO ()
 convertInteractive =
-  error "todo"
+  putStr "Please enter a string: " >-
+  getLine >>= \line ->
+  putStrLn (map toUpper line)
 
 -- |
 --
@@ -112,7 +114,12 @@ convertInteractive =
 reverseInteractive ::
   IO ()
 reverseInteractive =
-  error "todo"
+  putStr "Please enter a file name: " >-
+  getLine >>= \inputFile ->
+  putStr "Please enter the new file name: " >-
+  getLine >>= \outputFile ->
+  readFile inputFile >>= \contents ->
+  writeFile outputFile (reverse contents)
 
 -- |
 --
@@ -138,7 +145,14 @@ reverseInteractive =
 encodeInteractive ::
   IO ()
 encodeInteractive =
-  error "todo"
+  putStr "Please enter a URL to encode: " >-
+  getLine >>= \url ->
+  putStrLn $ url >>= \c -> case c of
+    ' '  -> "%20"
+    '\t' -> "%09"
+    '\"' -> "%22"
+    _    -> c :. Nil
+
 
 interactive ::
   IO ()
