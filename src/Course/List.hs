@@ -530,6 +530,9 @@ notElem ::
 notElem x =
   all (/= x)
 
+inits :: List a -> List (List a)
+inits = foldRight (\a b -> (a :. (headOr Nil b)) :. b) Nil
+
 permutations
   :: List a -> List (List a)
 permutations xs0 =
