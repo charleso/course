@@ -14,8 +14,12 @@ fastAnagrams ::
   Chars
   -> Filename
   -> IO (List Chars)
-fastAnagrams =
-  error "todo"
+fastAnagrams s file =
+  flip (<$>) (readFile file) $ fastAnagrams' s . lines
+
+fastAnagrams' :: Chars -> List Chars -> List Chars
+fastAnagrams' s contents = let set = S.fromList (hlist (NoCaseString <$> contents))
+                           in map ncString $ filter (flip S.member set) (NoCaseString <$> permutations s)
 
 newtype NoCaseString =
   NoCaseString {
@@ -24,6 +28,9 @@ newtype NoCaseString =
 
 instance Eq NoCaseString where
   (==) = (==) `on` map toLower . ncString
+
+instance Ord NoCaseString where
+  compare = compare `on` (map toLower . ncString)
 
 instance Show NoCaseString where
   show = show . ncString
