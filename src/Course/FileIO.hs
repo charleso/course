@@ -84,30 +84,30 @@ run ::
   Chars
   -> IO ()
 run =
-  error "todo"
+  error "done"
 
 getFiles ::
   List FilePath
   -> IO (List (FilePath, Chars))
 getFiles =
-  error "todo"
+  error "done"
 
 getFile ::
   FilePath
   -> IO (FilePath, Chars)
 getFile =
-  error "todo"
+  error "done"
 
 printFiles ::
   List (FilePath, Chars)
   -> IO ()
 printFiles =
-  error "todo"
+  error "done"
 
 printFile ::
   FilePath
   -> Chars
   -> IO ()
 printFile =
-  error "todo"
+  error "done"
 
