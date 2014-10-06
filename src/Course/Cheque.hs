@@ -19,12 +19,16 @@ data structures that may assist you in deriving the result. It is not compulsory
 
 module Course.Cheque where
 
+import Data.List (intersperse)
 import Course.Core
 import Course.Optional
 import Course.List
 import Course.Functor
 import Course.Apply
 import Course.Bind
+
+-- $setup
+-- >>> :set -XOverloadedStrings
 
 -- The representation of the grouping of each exponent of one thousand. ["thousand", "million", ...]
 illion ::
@@ -320,5 +324,48 @@ fromChar _ =
 dollars ::
   Chars
   -> Chars
-dollars =
-  error "todo"
+dollars s = let real'  = takeWhile (/= '.') s
+                real   = digits $ if isEmpty real' then "0" else real'
+                dec    = take 2 . digits . (++ "00") . dropWhile (== '.') . dropWhile (/= '.') $ s
+                digits = flatMap (foldOptional (flip (:.) Nil) Nil . fromChar)
+                dig3   = d3illion . groupDigits
+                d3illion = reverse . (zipWith (\ill d3 ->
+                  (let sd3 = showDigit3 d3 in if isEmpty sd3 then "" else sd3 ++ (if isEmpty ill then "" else " " ++ ill))
+                  ) illion) . reverse
+                sho    = (foldRight (++) "") . (listh . intersperse " " . hlist) . filter (/= "") . dig3
+                sho' d p = sho d ++ " " ++ p ++ (if (dropWhile (== Zero) d) == (One :. Nil) then "" else "s")
+            in (sho' real "dollar") ++ " and " ++ (sho' dec "cent")
+
+groupDigits :: List Digit -> List Digit3
+groupDigits = reverse . gd . reverse
+  where gd (d3 :. d2 :. d1 :. t) = (D3 d1 d2 d3) :. (gd t)
+        gd (d2 :. d1 :. Nil)     = (D2 d1 d2) :. Nil
+        gd (d1 :. Nil)           = (D1 d1) :. Nil
+        gd Nil                   = Nil
+
+showDigit3 :: Digit3 -> Chars
+showDigit3 (D1 d) = showDigit d
+showDigit3 (D2 d1 d2) =
+  let tn s      = if d2 == Zero then s else s ++ "-" ++ (showDigit d2)
+  in case (d1, d2) of
+  (Zero, _)    -> showDigit d2
+  (One, Zero)  -> "ten"
+  (One, One)   -> "eleven"
+  (One, Two)   -> "twelve"
+  (One, Three) -> "thirteen"
+  (One, Four)  -> "forteen"
+  (One, Five)  -> "fifteen"
+  (One, Eight) -> "eighteen"
+  (One, _)     -> (showDigit d2) ++ "teen"
+  (Two, _)     -> tn "twenty"
+  (Three, _)   -> tn "thirty"
+  (Four, _)    -> tn "forty"
+  (Five, _)    -> tn "fifty"
+  (Eight, _)   -> tn "eighty"
+  (_, _)       -> tn (showDigit d1 ++ "ty")
+showDigit3 (D3 d1 d2 d3) = case (d1, d2, d3) of
+ (Zero, Zero, Zero) -> ""
+ (Zero, _, _)       -> showDigit3 (D2 d2 d3)
+ (_, Zero, Zero)    -> (showDigit d1) ++ " hundred"
+ (_, _, _)          -> (showDigit d1) ++ " hundred and " ++ (showDigit3 (D2 d2 d3))
+
