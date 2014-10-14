@@ -72,8 +72,10 @@ headOr ::
   a
   -> List a
   -> a
-headOr a = foldRight const a
+headOr = foldRight const
 
+headOp :: List a -> Optional a
+headOp = foldRight (const . Full) Empty
 
 -- | The product of the elements of a list.
 --
@@ -251,6 +253,9 @@ find ::
   -> List a
   -> Optional a
 find p = headOr Empty . map Full . filter p
+
+exists :: (a -> Bool) -> List a -> Bool
+exists p = not . isEmpty . filter p
 
 -- | Determine if the length of the given list is greater than 4.
 --

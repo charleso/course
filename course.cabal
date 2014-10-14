@@ -80,6 +80,7 @@ library
                       Course.StateT
                       Course.Traversable
                       Course.Validation
+                      Course.TicTacToe
 
 test-suite            doctests
   type:
